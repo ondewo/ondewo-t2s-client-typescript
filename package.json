@@ -1,20 +1,22 @@
 {
-  "name": "@ondewo/t2s-client-typescript",
-  "version": "1.4.0",
-  "description": "Ondewo text to speech client library for typescript as a commonjs module",
-  "main": "public-api.js",
-  "typings": "public-api.d.ts",
-  "scripts": {
-    "start": "npm run build",
-    "build": "git submodule update --init --recursive --remote && docker run -it -v ${PWD}:/input-volume -v ${PWD}/..:/output-volume ondewo-typescript-proto-compiler ondewo-t2s-api ondewo",
-    "predebug": "mv ondewo-t2s-api/googleapis/google ondewo-t2s-api/google",
-    "debug": "docker run -it --entrypoint /bin/bash -v ${PWD}:/input-volume -v ${PWD}/..:/output-volume ondewo-typescript-proto-compiler"
-  },
-  "author": "Philipp Schweiger @ Ondewo",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "google-protobuf": "^3.11.4",
-    "grpc-web": "^1.0.7",
-    "tslib": "^1.10.0"
-  }
+	"name": "@ondewo/t2s-client-typescript",
+	"version": "4.3.0",
+	"description": "Ondewo Text to Speech (T2S) Client library for typescript as a commonjs module",
+	"main": "public-api.js",
+	"typings": "public-api.d.ts",
+	"author": "ONDEWO GmbH <office@ondewo.com>",
+	"license": "Apache-2.0",
+	"dependencies": {
+		"google-protobuf": "^3.21.0",
+		"grpc-web": "^1.3.1",
+		"tslib": "^2.4.0"
+	},
+	"devDependencies": {
+		"@types/node": "^18.7.11",
+		"@typescript-eslint/eslint-plugin": "^5.35.1",
+		"dotenv": "^16.0.1",
+		"eslint": "^8.22.0",
+		"husky": "^8.0.1",
+		"prettier": "^2.7.1"
+	}
 }
