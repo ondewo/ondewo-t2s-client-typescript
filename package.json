@@ -1,6 +1,6 @@
 {
 	"name": "@ondewo/t2s-client-typescript",
-	"version": "5.0.0",
+	"version": "5.2.0",
 	"description": "Ondewo Text to Speech (T2S) Client library for typescript as a commonjs module",
 	"main": "public-api.js",
 	"typings": "public-api.d.ts",
@@ -13,10 +13,10 @@
 	},
 	"devDependencies": {
 		"@types/node": "^18.7.11",
-		"@typescript-eslint/eslint-plugin": "^5.39.0",
+		"@typescript-eslint/eslint-plugin": "^6.19.1",
 		"dotenv": "^16.0.1",
-		"eslint": "^8.25.0",
-		"husky": "^8.0.1",
-		"prettier": "^2.7.1"
+		"eslint": "^8.56.0",
+		"husky": "^8.0.3",
+		"prettier": "^3.2.4"
 	}
 }

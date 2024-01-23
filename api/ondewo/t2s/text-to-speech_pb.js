@@ -5448,7 +5448,9 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 				cleanersList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
 				maxTextLength: jspb.Message.getFieldWithDefault(msg, 5, 0),
 				paramConfigPath: jspb.Message.getFieldWithDefault(msg, 6, ''),
-				tritonModelName: jspb.Message.getFieldWithDefault(msg, 7, '')
+				tritonModelName: jspb.Message.getFieldWithDefault(msg, 7, ''),
+				tritonServerHost: jspb.Message.getFieldWithDefault(msg, 8, ''),
+				tritonServerPort: jspb.Message.getFieldWithDefault(msg, 9, 0)
 			};
 
 		if (includeInstance) {
@@ -5511,6 +5513,14 @@ proto.ondewo.t2s.GlowTTSTriton.deserializeBinaryFromReader = function (msg, read
 				var value = /** @type {string} */ (reader.readString());
 				msg.setTritonModelName(value);
 				break;
+			case 8:
+				var value = /** @type {string} */ (reader.readString());
+				msg.setTritonServerHost(value);
+				break;
+			case 9:
+				var value = /** @type {number} */ (reader.readInt64());
+				msg.setTritonServerPort(value);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -5565,6 +5575,14 @@ proto.ondewo.t2s.GlowTTSTriton.serializeBinaryToWriter = function (message, writ
 	f = message.getTritonModelName();
 	if (f.length > 0) {
 		writer.writeString(7, f);
+	}
+	f = message.getTritonServerHost();
+	if (f.length > 0) {
+		writer.writeString(8, f);
+	}
+	f = message.getTritonServerPort();
+	if (f !== 0) {
+		writer.writeInt64(9, f);
 	}
 };
 
@@ -5695,6 +5713,38 @@ proto.ondewo.t2s.GlowTTSTriton.prototype.getTritonModelName = function () {
  */
 proto.ondewo.t2s.GlowTTSTriton.prototype.setTritonModelName = function (value) {
 	return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+/**
+ * optional string triton_server_host = 8;
+ * @return {string}
+ */
+proto.ondewo.t2s.GlowTTSTriton.prototype.getTritonServerHost = function () {
+	return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ''));
+};
+
+/**
+ * @param {string} value
+ * @return {!proto.ondewo.t2s.GlowTTSTriton} returns this
+ */
+proto.ondewo.t2s.GlowTTSTriton.prototype.setTritonServerHost = function (value) {
+	return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+/**
+ * optional int64 triton_server_port = 9;
+ * @return {number}
+ */
+proto.ondewo.t2s.GlowTTSTriton.prototype.getTritonServerPort = function () {
+	return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+/**
+ * @param {number} value
+ * @return {!proto.ondewo.t2s.GlowTTSTriton} returns this
+ */
+proto.ondewo.t2s.GlowTTSTriton.prototype.setTritonServerPort = function (value) {
+	return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -6166,7 +6216,9 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 		var f,
 			obj = {
 				configPath: jspb.Message.getFieldWithDefault(msg, 1, ''),
-				tritonModelName: jspb.Message.getFieldWithDefault(msg, 2, '')
+				tritonModelName: jspb.Message.getFieldWithDefault(msg, 2, ''),
+				tritonServerHost: jspb.Message.getFieldWithDefault(msg, 3, ''),
+				tritonServerPort: jspb.Message.getFieldWithDefault(msg, 4, 0)
 			};
 
 		if (includeInstance) {
@@ -6209,6 +6261,14 @@ proto.ondewo.t2s.HiFiGanTriton.deserializeBinaryFromReader = function (msg, read
 				var value = /** @type {string} */ (reader.readString());
 				msg.setTritonModelName(value);
 				break;
+			case 3:
+				var value = /** @type {string} */ (reader.readString());
+				msg.setTritonServerHost(value);
+				break;
+			case 4:
+				var value = /** @type {number} */ (reader.readInt64());
+				msg.setTritonServerPort(value);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -6244,6 +6304,14 @@ proto.ondewo.t2s.HiFiGanTriton.serializeBinaryToWriter = function (message, writ
 	if (f.length > 0) {
 		writer.writeString(2, f);
 	}
+	f = message.getTritonServerHost();
+	if (f.length > 0) {
+		writer.writeString(3, f);
+	}
+	f = message.getTritonServerPort();
+	if (f !== 0) {
+		writer.writeInt64(4, f);
+	}
 };
 
 /**
@@ -6278,6 +6346,38 @@ proto.ondewo.t2s.HiFiGanTriton.prototype.setTritonModelName = function (value) {
 	return jspb.Message.setProto3StringField(this, 2, value);
 };
 
+/**
+ * optional string triton_server_host = 3;
+ * @return {string}
+ */
+proto.ondewo.t2s.HiFiGanTriton.prototype.getTritonServerHost = function () {
+	return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ''));
+};
+
+/**
+ * @param {string} value
+ * @return {!proto.ondewo.t2s.HiFiGanTriton} returns this
+ */
+proto.ondewo.t2s.HiFiGanTriton.prototype.setTritonServerHost = function (value) {
+	return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+/**
+ * optional int64 triton_server_port = 4;
+ * @return {number}
+ */
+proto.ondewo.t2s.HiFiGanTriton.prototype.getTritonServerPort = function () {
+	return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+/**
+ * @param {number} value
+ * @return {!proto.ondewo.t2s.HiFiGanTriton} returns this
+ */
+proto.ondewo.t2s.HiFiGanTriton.prototype.setTritonServerPort = function (value) {
+	return jspb.Message.setProto3IntField(this, 4, value);
+};
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
 	/**
 	 * Creates an object representation of this proto.
@@ -6310,7 +6410,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 				configPath: jspb.Message.getFieldWithDefault(msg, 1, ''),
 				statsPath: jspb.Message.getFieldWithDefault(msg, 2, ''),
 				tritonModelName: jspb.Message.getFieldWithDefault(msg, 3, ''),
-				tritonUrl: jspb.Message.getFieldWithDefault(msg, 4, '')
+				tritonServerHost: jspb.Message.getFieldWithDefault(msg, 4, ''),
+				tritonServerPort: jspb.Message.getFieldWithDefault(msg, 5, 0)
 			};
 
 		if (includeInstance) {
@@ -6359,7 +6460,11 @@ proto.ondewo.t2s.MbMelganTriton.deserializeBinaryFromReader = function (msg, rea
 				break;
 			case 4:
 				var value = /** @type {string} */ (reader.readString());
-				msg.setTritonUrl(value);
+				msg.setTritonServerHost(value);
+				break;
+			case 5:
+				var value = /** @type {number} */ (reader.readInt64());
+				msg.setTritonServerPort(value);
 				break;
 			default:
 				reader.skipField();
@@ -6400,9 +6505,13 @@ proto.ondewo.t2s.MbMelganTriton.serializeBinaryToWriter = function (message, wri
 	if (f.length > 0) {
 		writer.writeString(3, f);
 	}
-	f = message.getTritonUrl();
+	f = message.getTritonServerHost();
 	if (f.length > 0) {
 		writer.writeString(4, f);
+	}
+	f = message.getTritonServerPort();
+	if (f !== 0) {
+		writer.writeInt64(5, f);
 	}
 };
 
@@ -6455,10 +6564,10 @@ proto.ondewo.t2s.MbMelganTriton.prototype.setTritonModelName = function (value) 
 };
 
 /**
- * optional string triton_url = 4;
+ * optional string triton_server_host = 4;
  * @return {string}
  */
-proto.ondewo.t2s.MbMelganTriton.prototype.getTritonUrl = function () {
+proto.ondewo.t2s.MbMelganTriton.prototype.getTritonServerHost = function () {
 	return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ''));
 };
 
@@ -6466,8 +6575,24 @@ proto.ondewo.t2s.MbMelganTriton.prototype.getTritonUrl = function () {
  * @param {string} value
  * @return {!proto.ondewo.t2s.MbMelganTriton} returns this
  */
-proto.ondewo.t2s.MbMelganTriton.prototype.setTritonUrl = function (value) {
+proto.ondewo.t2s.MbMelganTriton.prototype.setTritonServerHost = function (value) {
 	return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+/**
+ * optional int64 triton_server_port = 5;
+ * @return {number}
+ */
+proto.ondewo.t2s.MbMelganTriton.prototype.getTritonServerPort = function () {
+	return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+/**
+ * @param {number} value
+ * @return {!proto.ondewo.t2s.MbMelganTriton} returns this
+ */
+proto.ondewo.t2s.MbMelganTriton.prototype.setTritonServerPort = function (value) {
+	return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 if (jspb.Message.GENERATE_TO_OBJECT) {

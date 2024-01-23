@@ -75,14 +75,6 @@ export class Text2SpeechClient {
 		metadata: grpcWeb.Metadata | undefined,
 		callback: (err: grpcWeb.RpcError, response: ondewo_t2s_text$to$speech_pb.T2SGetServiceInfoResponse) => void
 	): grpcWeb.ClientReadableStream<ondewo_t2s_text$to$speech_pb.T2SGetServiceInfoResponse>;
-}
-
-export class CustomPhonemizersClient {
-	constructor(
-		hostname: string,
-		credentials?: null | { [index: string]: string },
-		options?: null | { [index: string]: any }
-	);
 
 	getCustomPhonemizer(
 		request: ondewo_t2s_text$to$speech_pb.PhonemizerId,
@@ -176,14 +168,6 @@ export class Text2SpeechPromiseClient {
 		request: google_protobuf_empty_pb.Empty,
 		metadata?: grpcWeb.Metadata
 	): Promise<ondewo_t2s_text$to$speech_pb.T2SGetServiceInfoResponse>;
-}
-
-export class CustomPhonemizersPromiseClient {
-	constructor(
-		hostname: string,
-		credentials?: null | { [index: string]: string },
-		options?: null | { [index: string]: any }
-	);
 
 	getCustomPhonemizer(
 		request: ondewo_t2s_text$to$speech_pb.PhonemizerId,

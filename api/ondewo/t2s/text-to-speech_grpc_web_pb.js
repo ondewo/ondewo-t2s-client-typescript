@@ -702,59 +702,13 @@ proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.getServiceInfo = function (r
 };
 
 /**
- * @param {string} hostname
- * @param {?Object} credentials
- * @param {?grpc.web.ClientOptions} options
- * @constructor
- * @struct
- * @final
- */
-proto.ondewo.t2s.CustomPhonemizersClient = function (hostname, credentials, options) {
-	if (!options) options = {};
-	options.format = 'binary';
-
-	/**
-	 * @private @const {!grpc.web.GrpcWebClientBase} The client
-	 */
-	this.client_ = new grpc.web.GrpcWebClientBase(options);
-
-	/**
-	 * @private @const {string} The hostname
-	 */
-	this.hostname_ = hostname;
-};
-
-/**
- * @param {string} hostname
- * @param {?Object} credentials
- * @param {?grpc.web.ClientOptions} options
- * @constructor
- * @struct
- * @final
- */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient = function (hostname, credentials, options) {
-	if (!options) options = {};
-	options.format = 'binary';
-
-	/**
-	 * @private @const {!grpc.web.GrpcWebClientBase} The client
-	 */
-	this.client_ = new grpc.web.GrpcWebClientBase(options);
-
-	/**
-	 * @private @const {string} The hostname
-	 */
-	this.hostname_ = hostname;
-};
-
-/**
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.ondewo.t2s.PhonemizerId,
  *   !proto.ondewo.t2s.CustomPhonemizerProto>}
  */
-const methodDescriptor_CustomPhonemizers_GetCustomPhonemizer = new grpc.web.MethodDescriptor(
-	'/ondewo.t2s.CustomPhonemizers/GetCustomPhonemizer',
+const methodDescriptor_Text2Speech_GetCustomPhonemizer = new grpc.web.MethodDescriptor(
+	'/ondewo.t2s.Text2Speech/GetCustomPhonemizer',
 	grpc.web.MethodType.UNARY,
 	proto.ondewo.t2s.PhonemizerId,
 	proto.ondewo.t2s.CustomPhonemizerProto,
@@ -778,12 +732,12 @@ const methodDescriptor_CustomPhonemizers_GetCustomPhonemizer = new grpc.web.Meth
  * @return {!grpc.web.ClientReadableStream<!proto.ondewo.t2s.CustomPhonemizerProto>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.ondewo.t2s.CustomPhonemizersClient.prototype.getCustomPhonemizer = function (request, metadata, callback) {
+proto.ondewo.t2s.Text2SpeechClient.prototype.getCustomPhonemizer = function (request, metadata, callback) {
 	return this.client_.rpcCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/GetCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/GetCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_GetCustomPhonemizer,
+		methodDescriptor_Text2Speech_GetCustomPhonemizer,
 		callback
 	);
 };
@@ -796,12 +750,12 @@ proto.ondewo.t2s.CustomPhonemizersClient.prototype.getCustomPhonemizer = functio
  * @return {!Promise<!proto.ondewo.t2s.CustomPhonemizerProto>}
  *     Promise that resolves to the response
  */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.getCustomPhonemizer = function (request, metadata) {
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.getCustomPhonemizer = function (request, metadata) {
 	return this.client_.unaryCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/GetCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/GetCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_GetCustomPhonemizer
+		methodDescriptor_Text2Speech_GetCustomPhonemizer
 	);
 };
 
@@ -811,8 +765,8 @@ proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.getCustomPhonemizer = 
  *   !proto.ondewo.t2s.CreateCustomPhonemizerRequest,
  *   !proto.ondewo.t2s.PhonemizerId>}
  */
-const methodDescriptor_CustomPhonemizers_CreateCustomPhonemizer = new grpc.web.MethodDescriptor(
-	'/ondewo.t2s.CustomPhonemizers/CreateCustomPhonemizer',
+const methodDescriptor_Text2Speech_CreateCustomPhonemizer = new grpc.web.MethodDescriptor(
+	'/ondewo.t2s.Text2Speech/CreateCustomPhonemizer',
 	grpc.web.MethodType.UNARY,
 	proto.ondewo.t2s.CreateCustomPhonemizerRequest,
 	proto.ondewo.t2s.PhonemizerId,
@@ -836,12 +790,12 @@ const methodDescriptor_CustomPhonemizers_CreateCustomPhonemizer = new grpc.web.M
  * @return {!grpc.web.ClientReadableStream<!proto.ondewo.t2s.PhonemizerId>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.ondewo.t2s.CustomPhonemizersClient.prototype.createCustomPhonemizer = function (request, metadata, callback) {
+proto.ondewo.t2s.Text2SpeechClient.prototype.createCustomPhonemizer = function (request, metadata, callback) {
 	return this.client_.rpcCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/CreateCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/CreateCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_CreateCustomPhonemizer,
+		methodDescriptor_Text2Speech_CreateCustomPhonemizer,
 		callback
 	);
 };
@@ -854,12 +808,12 @@ proto.ondewo.t2s.CustomPhonemizersClient.prototype.createCustomPhonemizer = func
  * @return {!Promise<!proto.ondewo.t2s.PhonemizerId>}
  *     Promise that resolves to the response
  */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.createCustomPhonemizer = function (request, metadata) {
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.createCustomPhonemizer = function (request, metadata) {
 	return this.client_.unaryCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/CreateCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/CreateCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_CreateCustomPhonemizer
+		methodDescriptor_Text2Speech_CreateCustomPhonemizer
 	);
 };
 
@@ -869,8 +823,8 @@ proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.createCustomPhonemizer
  *   !proto.ondewo.t2s.PhonemizerId,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_CustomPhonemizers_DeleteCustomPhonemizer = new grpc.web.MethodDescriptor(
-	'/ondewo.t2s.CustomPhonemizers/DeleteCustomPhonemizer',
+const methodDescriptor_Text2Speech_DeleteCustomPhonemizer = new grpc.web.MethodDescriptor(
+	'/ondewo.t2s.Text2Speech/DeleteCustomPhonemizer',
 	grpc.web.MethodType.UNARY,
 	proto.ondewo.t2s.PhonemizerId,
 	google_protobuf_empty_pb.Empty,
@@ -894,12 +848,12 @@ const methodDescriptor_CustomPhonemizers_DeleteCustomPhonemizer = new grpc.web.M
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.ondewo.t2s.CustomPhonemizersClient.prototype.deleteCustomPhonemizer = function (request, metadata, callback) {
+proto.ondewo.t2s.Text2SpeechClient.prototype.deleteCustomPhonemizer = function (request, metadata, callback) {
 	return this.client_.rpcCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/DeleteCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/DeleteCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_DeleteCustomPhonemizer,
+		methodDescriptor_Text2Speech_DeleteCustomPhonemizer,
 		callback
 	);
 };
@@ -912,12 +866,12 @@ proto.ondewo.t2s.CustomPhonemizersClient.prototype.deleteCustomPhonemizer = func
  * @return {!Promise<!proto.google.protobuf.Empty>}
  *     Promise that resolves to the response
  */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.deleteCustomPhonemizer = function (request, metadata) {
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.deleteCustomPhonemizer = function (request, metadata) {
 	return this.client_.unaryCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/DeleteCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/DeleteCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_DeleteCustomPhonemizer
+		methodDescriptor_Text2Speech_DeleteCustomPhonemizer
 	);
 };
 
@@ -927,8 +881,8 @@ proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.deleteCustomPhonemizer
  *   !proto.ondewo.t2s.UpdateCustomPhonemizerRequest,
  *   !proto.ondewo.t2s.CustomPhonemizerProto>}
  */
-const methodDescriptor_CustomPhonemizers_UpdateCustomPhonemizer = new grpc.web.MethodDescriptor(
-	'/ondewo.t2s.CustomPhonemizers/UpdateCustomPhonemizer',
+const methodDescriptor_Text2Speech_UpdateCustomPhonemizer = new grpc.web.MethodDescriptor(
+	'/ondewo.t2s.Text2Speech/UpdateCustomPhonemizer',
 	grpc.web.MethodType.UNARY,
 	proto.ondewo.t2s.UpdateCustomPhonemizerRequest,
 	proto.ondewo.t2s.CustomPhonemizerProto,
@@ -952,12 +906,12 @@ const methodDescriptor_CustomPhonemizers_UpdateCustomPhonemizer = new grpc.web.M
  * @return {!grpc.web.ClientReadableStream<!proto.ondewo.t2s.CustomPhonemizerProto>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.ondewo.t2s.CustomPhonemizersClient.prototype.updateCustomPhonemizer = function (request, metadata, callback) {
+proto.ondewo.t2s.Text2SpeechClient.prototype.updateCustomPhonemizer = function (request, metadata, callback) {
 	return this.client_.rpcCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/UpdateCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/UpdateCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_UpdateCustomPhonemizer,
+		methodDescriptor_Text2Speech_UpdateCustomPhonemizer,
 		callback
 	);
 };
@@ -970,12 +924,12 @@ proto.ondewo.t2s.CustomPhonemizersClient.prototype.updateCustomPhonemizer = func
  * @return {!Promise<!proto.ondewo.t2s.CustomPhonemizerProto>}
  *     Promise that resolves to the response
  */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.updateCustomPhonemizer = function (request, metadata) {
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.updateCustomPhonemizer = function (request, metadata) {
 	return this.client_.unaryCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/UpdateCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/UpdateCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_UpdateCustomPhonemizer
+		methodDescriptor_Text2Speech_UpdateCustomPhonemizer
 	);
 };
 
@@ -985,8 +939,8 @@ proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.updateCustomPhonemizer
  *   !proto.ondewo.t2s.ListCustomPhonemizerRequest,
  *   !proto.ondewo.t2s.ListCustomPhonemizerResponse>}
  */
-const methodDescriptor_CustomPhonemizers_ListCustomPhonemizer = new grpc.web.MethodDescriptor(
-	'/ondewo.t2s.CustomPhonemizers/ListCustomPhonemizer',
+const methodDescriptor_Text2Speech_ListCustomPhonemizer = new grpc.web.MethodDescriptor(
+	'/ondewo.t2s.Text2Speech/ListCustomPhonemizer',
 	grpc.web.MethodType.UNARY,
 	proto.ondewo.t2s.ListCustomPhonemizerRequest,
 	proto.ondewo.t2s.ListCustomPhonemizerResponse,
@@ -1010,12 +964,12 @@ const methodDescriptor_CustomPhonemizers_ListCustomPhonemizer = new grpc.web.Met
  * @return {!grpc.web.ClientReadableStream<!proto.ondewo.t2s.ListCustomPhonemizerResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.ondewo.t2s.CustomPhonemizersClient.prototype.listCustomPhonemizer = function (request, metadata, callback) {
+proto.ondewo.t2s.Text2SpeechClient.prototype.listCustomPhonemizer = function (request, metadata, callback) {
 	return this.client_.rpcCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/ListCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/ListCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_ListCustomPhonemizer,
+		methodDescriptor_Text2Speech_ListCustomPhonemizer,
 		callback
 	);
 };
@@ -1028,12 +982,12 @@ proto.ondewo.t2s.CustomPhonemizersClient.prototype.listCustomPhonemizer = functi
  * @return {!Promise<!proto.ondewo.t2s.ListCustomPhonemizerResponse>}
  *     Promise that resolves to the response
  */
-proto.ondewo.t2s.CustomPhonemizersPromiseClient.prototype.listCustomPhonemizer = function (request, metadata) {
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.listCustomPhonemizer = function (request, metadata) {
 	return this.client_.unaryCall(
-		this.hostname_ + '/ondewo.t2s.CustomPhonemizers/ListCustomPhonemizer',
+		this.hostname_ + '/ondewo.t2s.Text2Speech/ListCustomPhonemizer',
 		request,
 		metadata || {},
-		methodDescriptor_CustomPhonemizers_ListCustomPhonemizer
+		methodDescriptor_Text2Speech_ListCustomPhonemizer
 	);
 };
 
