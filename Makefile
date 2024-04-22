@@ -18,7 +18,7 @@ export
 ONDEWO_T2S_VERSION = 5.2.0
 
 T2S_API_GIT_BRANCH=tags/5.2.0
-ONDEWO_PROTO_COMPILER_GIT_BRANCH=tags/4.7.0
+ONDEWO_PROTO_COMPILER_GIT_BRANCH=tags/4.8.0
 ONDEWO_PROTO_COMPILER_DIR=ondewo-proto-compiler
 T2S_APIS_DIR=src/ondewo-t2s-api
 T2S_PROTOS_DIR=${T2S_APIS_DIR}/ondewo
@@ -52,7 +52,6 @@ install_precommit_hooks: ## Install precommit hooks
 run_precommit_hooks:
 	.husky/pre-commit
 
-
 prettier: ## Checks formatting with Prettier - Use PRETTIER_WRITE=-w to also automatically apply corrections where needed
 	node_modules/.bin/prettier --config .prettierrc --check --ignore-path .prettierignore $(PRETTIER_WRITE) ./
 
@@ -75,6 +74,7 @@ check_build: #Checks if all built proto-code is there
 	@for proto in `find src/ondewo-t2s-api/ondewo -iname "*.proto*"`; \
 	do \
 		cat $${proto} | grep import | grep "google/" | cut -d "/" -f 3 | cut -d "." -f 1 >> build_check.txt; \
+		sed -i 's/import.*//g' build_check.txt; \
 		echo $${proto} | cut -d "/" -f 5 | cut -d "." -f 1 >> build_check.txt; \
 	done
 	@echo "`sort build_check.txt | uniq`" > build_check.txt
@@ -115,7 +115,6 @@ release: ## Create Github and NPM Release
 	make create_release_tag
 	make release_to_github_via_docker_image
 	@echo "Finished Release"
-
 
 gh_release: build_utils_docker_image release_to_github_via_docker_image ## Builds Utils Image and Releases to Github
 
@@ -187,7 +186,6 @@ spc: ## Checks if the Release Branch, Tag and Pypi version already exist
 	@if test "$(filtered_branches)" != ""; then echo "-- Test 1: Branch exists!!" & exit 1; else echo "-- Test 1: Branch is fine";fi
 	@if test "$(filtred_tags)" != ""; then echo "-- Test 2: Tag exists!!" & exit 1; else echo "-- Test 2: Tag is fine";fi
 
-
 ########################################################
 # Build
 
@@ -209,7 +207,6 @@ build: check_out_correct_submodule_versions build_compiler update_package npm_ru
 	@sed -i "${DELETE_LINES}d" npm/README.md
 	make install_dependencies
 
-
 remove_npm_script: ## Removes Script section from package.json
 	$(eval script_lines:= $(shell cat package.json | sed -n '/\"scripts\"/,/\}\,/='))
 	$(eval start:= $(shell echo $(script_lines) | cut -c 1-2))
@@ -227,10 +224,11 @@ create_npm_package: ## Creates NPM Package for Release
 	cp README.md npm
 
 install_dependencies: ## Installs Dev-Dependencies
-	npm i eslint --save-dev
-	npm i prettier --save-dev
-	npm i @typescript-eslint/eslint-plugin --save-dev
-	npm i husky --save-dev
+	npm i @typescript-eslint/eslint-plugin \
+		  eslint \
+		  prettier \
+		  husky \
+		  --save-dev
 
 check_out_correct_submodule_versions: ## Fetches all Submodules and checksout specified branch
 	@echo "START checking out correct submodule versions ..."
@@ -250,4 +248,3 @@ test-in-ondewo-aim: ## Runs test
 	@echo "START copying files to local AIM for testing ..."
 	cd src/ && npm run test-in-ondewo-aim && cd ..
 	@echo "DONE copying files to local AIM for testing."
-
