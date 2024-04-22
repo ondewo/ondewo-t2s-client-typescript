@@ -1,6 +1,6 @@
 {
   "name": "@ondewo/t2s-client-typescript",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "ONDEWO Text to Speech (T2S) client library for typescript",
   "main": "public-api.js",
   "typings": "public-api.d.ts",
