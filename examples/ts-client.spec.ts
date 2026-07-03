@@ -79,7 +79,7 @@ runTestCase('synthesizeText sends the text + pipeline id and the bearer authoriz
 	assert.equal(sentRequest.getConfig()?.getT2sPipelineId(), 'pipeline-42');
 
 	// The bearer token is forwarded verbatim as the `authorization` gRPC metadata header.
-	assert.deepEqual(stub.calls[0].metadata, { authorization: 'Bearer access-1' });
+	assert.deepEqual(stub.calls[0].metadata, { Authorization: 'Bearer access-1' });
 
 	// The response is mapped to the plain-data view.
 	assert.equal(audio.audioUuid, 'audio-uuid-1');

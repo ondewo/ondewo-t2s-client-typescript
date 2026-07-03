@@ -93,7 +93,7 @@ export async function synthesizeText(
 	request.setText(text);
 	request.setConfig(config);
 
-	const metadata: grpcWeb.Metadata = { authorization: authorizationHeader };
+	const metadata: grpcWeb.Metadata = { Authorization: authorizationHeader };
 	const response: SynthesizeResponse = await client.synthesize(request, metadata);
 
 	return {
