@@ -22,8 +22,9 @@ export default [
 			'**/ondewo-proto-compiler',
 			'**/*.mjs',
 			'**/.test-build/',
-			'npm/public-api.d.ts',
-			'npm/public-api.js'
+			'npm/',
+			'.test-build/',
+			'.test-build-examples/'
 		]
 	},
 	...compat.extends(

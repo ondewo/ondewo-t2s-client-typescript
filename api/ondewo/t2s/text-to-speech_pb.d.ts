@@ -1292,6 +1292,9 @@ export class T2sCloudServiceGoogle extends jspb.Message {
   getPitch(): number;
   setPitch(value: number): T2sCloudServiceGoogle;
 
+  getSpeakerLanguage(): string;
+  setSpeakerLanguage(value: string): T2sCloudServiceGoogle;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): T2sCloudServiceGoogle.AsObject;
   static toObject(includeInstance: boolean, msg: T2sCloudServiceGoogle): T2sCloudServiceGoogle.AsObject;
@@ -1306,6 +1309,7 @@ export namespace T2sCloudServiceGoogle {
     speakingRate: number,
     volumeGainDb: number,
     pitch: number,
+    speakerLanguage: string,
   }
 }
 
