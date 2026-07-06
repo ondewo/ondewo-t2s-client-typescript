@@ -30,12 +30,15 @@
  * A consumer of the published package imports the same symbols from `@ondewo/t2s-client-typescript`;
  * inside this repo the example imports them via relative paths to the generated stubs.
  *
- * Run it (after `make build` has generated the stubs) with the connection env vars set, e.g.:
- *   ONDEWO_T2S_KEYCLOAK_URL=... ONDEWO_T2S_USER_NAME=... ONDEWO_T2S_USER_PASSWORD=... \
- *   ONDEWO_T2S_GRPC_WEB_HOST=https://t2s.example.com ONDEWO_T2S_PIPELINE_ID=<id> \
+ * Configuration is read from `examples/environment.env` (loaded via dotenv, resolved relative to this
+ * script so the working directory does not matter). Fill that file in, then run it (after `make build`
+ * has generated the stubs) with:
  *   node --experimental-strip-types examples/ts-client.ts
  */
 
+import * as path from 'path';
+
+import * as dotenv from 'dotenv';
 import * as grpcWeb from 'grpc-web';
 
 import { Text2SpeechPromiseClient } from '../api/ondewo/t2s/text-to-speech_grpc_web_pb';
@@ -105,8 +108,7 @@ export async function synthesizeText(
 }
 
 /**
- * Read a connection value from the environment, falling back to `fallback` when unset or empty. Kept
- * tiny so the example stays self-contained (a real app would use `dotenv`, already a devDependency).
+ * Read a value from the environment, falling back to `fallback` when unset or empty.
  *
  * @param name - Environment variable name.
  * @param fallback - Value to use when the variable is unset or empty.
@@ -118,25 +120,62 @@ function envOr(name: string, fallback: string): string {
 }
 
 /**
+ * Read a boolean value from the environment. `"true"` (case-insensitive) is `true`; anything else
+ * (including unset) falls back to `fallback`.
+ *
+ * @param name - Environment variable name.
+ * @param fallback - Value to use when the variable is unset or empty.
+ * @returns The parsed boolean value, or `fallback`.
+ */
+function envBool(name: string, fallback: boolean): boolean {
+	const value: string | undefined = process.env[name];
+	if (value === undefined || value.length === 0) {
+		return fallback;
+	}
+	return value.trim().toLowerCase() === 'true';
+}
+
+/**
+ * Assemble the grpc-web endpoint URL from the canonical connection env vars: it is
+ * `<scheme>://ONDEWO_HOST:ONDEWO_PORT`, where `<scheme>` is `https` when `ONDEWO_USE_SECURE_CHANNEL`
+ * is `true`, otherwise `http`.
+ *
+ * @returns The fully-qualified grpc-web host URL.
+ */
+function buildGrpcWebHost(): string {
+	const host: string = envOr('ONDEWO_HOST', 'localhost');
+	const port: string = envOr('ONDEWO_PORT', '8080');
+	const scheme: string = envBool('ONDEWO_USE_SECURE_CHANNEL', false) ? 'https' : 'http';
+	return `${scheme}://${host}:${port}`;
+}
+
+/**
  * Entry point: log in headlessly, construct the client, synthesize a line of text and print a summary.
  * Only invoked when this file is run directly; importing it (e.g. from the spec) does NOT run it.
  *
  * @returns A promise that resolves once the synthesis summary has been printed.
  */
 export async function main(): Promise<void> {
+	// Load examples/environment.env relative to this script so cwd does not matter.
+	dotenv.config({ path: path.join(__dirname, 'environment.env') });
+
 	const loginOptions: OfflineTokenLoginOptions = {
-		keycloakUrl: envOr('ONDEWO_T2S_KEYCLOAK_URL', 'https://auth.example.com/auth'),
-		realm: envOr('ONDEWO_T2S_KEYCLOAK_REALM', 'ondewo-ccai-platform'),
-		clientId: envOr('ONDEWO_T2S_KEYCLOAK_CLIENT_ID', 'ondewo-t2s-cai-sdk-public'),
-		username: envOr('ONDEWO_T2S_USER_NAME', ''),
-		password: envOr('ONDEWO_T2S_USER_PASSWORD', '')
+		keycloakUrl: envOr('KEYCLOAK_URL', 'https://localhost:8443/auth'),
+		realm: envOr('KEYCLOAK_REALM', 'ondewo-ccai-platform'),
+		clientId: envOr('KEYCLOAK_CLIENT_ID', 'ondewo-t2s-cai-sdk-public'),
+		username: envOr('KEYCLOAK_USER_NAME', ''),
+		password: envOr('KEYCLOAK_PASSWORD', ''),
+		keycloakVerifySsl: envBool('KEYCLOAK_VERIFY_SSL', true)
 	};
-	const grpcWebHost: string = envOr('ONDEWO_T2S_GRPC_WEB_HOST', 'http://localhost:8080');
+	const grpcWebHost: string = buildGrpcWebHost();
 	const pipelineId: string = envOr('ONDEWO_T2S_PIPELINE_ID', '');
 	const text: string = envOr('ONDEWO_T2S_TEXT', 'Hello from the ONDEWO T2S TypeScript client.');
 
+	console.log(`START: authenticating with Keycloak at ${loginOptions.keycloakUrl} (realm=${loginOptions.realm}).`);
 	const tokenProvider: OfflineTokenProvider = await login(loginOptions);
+	console.log('DONE: obtained a live access token.');
 	try {
+		console.log(`START: synthesizing on pipeline "${pipelineId}" via ${grpcWebHost}.`);
 		const client: Text2SpeechPromiseClient = new Text2SpeechPromiseClient(grpcWebHost, null, null);
 		const audio: SynthesizedAudio = await synthesizeText(
 			client,
@@ -145,7 +184,7 @@ export async function main(): Promise<void> {
 			text
 		);
 		console.log(
-			`Synthesized ${audio.audio.length} bytes of audio ` +
+			`DONE: synthesized ${audio.audio.length} bytes of audio ` +
 				`(uuid=${audio.audioUuid}, length=${audio.audioLengthInS}s, sampleRate=${audio.sampleRate}Hz).`
 		);
 	} finally {
@@ -156,7 +195,7 @@ export async function main(): Promise<void> {
 
 if (require.main === module) {
 	main().catch((error: unknown): void => {
-		console.error(error);
-		process.exitCode = 1;
+		console.error('ERROR: T2S synthesis example failed.', error);
+		process.exit(1);
 	});
 }
