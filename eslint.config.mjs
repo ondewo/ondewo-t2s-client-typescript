@@ -21,8 +21,10 @@ export default [
 			'src/ondewo-t2s-api',
 			'**/ondewo-proto-compiler',
 			'**/*.mjs',
-			'npm/public-api.d.ts',
-			'npm/public-api.js'
+			'**/.test-build/',
+			'npm/',
+			'.test-build/',
+			'.test-build-examples/'
 		]
 	},
 	...compat.extends(
