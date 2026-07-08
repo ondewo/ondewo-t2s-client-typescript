@@ -1116,5 +1116,66 @@ proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.listCustomPhonemizer =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.ondewo.t2s.VoiceCloningRequest,
+ *   !proto.google.protobuf.Empty>}
+ */
+const methodDescriptor_Text2Speech_VoiceCloning = new grpc.web.MethodDescriptor(
+  '/ondewo.t2s.Text2Speech/VoiceCloning',
+  grpc.web.MethodType.UNARY,
+  proto.ondewo.t2s.VoiceCloningRequest,
+  google_protobuf_empty_pb.Empty,
+  /**
+   * @param {!proto.ondewo.t2s.VoiceCloningRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  google_protobuf_empty_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.ondewo.t2s.VoiceCloningRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.google.protobuf.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.ondewo.t2s.Text2SpeechClient.prototype.voiceCloning =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/ondewo.t2s.Text2Speech/VoiceCloning',
+      request,
+      metadata || {},
+      methodDescriptor_Text2Speech_VoiceCloning,
+      callback);
+};
+
+
+/**
+ * @param {!proto.ondewo.t2s.VoiceCloningRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.google.protobuf.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.ondewo.t2s.Text2SpeechPromiseClient.prototype.voiceCloning =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/ondewo.t2s.Text2Speech/VoiceCloning',
+      request,
+      metadata || {},
+      methodDescriptor_Text2Speech_VoiceCloning);
+};
+
+
 module.exports = proto.ondewo.t2s;
 
