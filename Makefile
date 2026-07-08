@@ -202,6 +202,7 @@ build: check_out_correct_submodule_versions build_compiler update_package npm_ru
 	-cd src/ondewo-t2s-api && git checkout -- '**/*.proto' && cd ../..
 	cp src/README.md .
 	cp src/RELEASE.md .
+	make restore_ci_test_setup
 	make create_npm_package
 	make remove_npm_script
 	@$(eval README_CUT_LINES:=$(shell cat -n src/README.md | perl -ne 'print if /START OF GITHUB README/../END OF GITHUB README/' | grep -o -E '[0-9]+' | perl -pe 's/^0+//' | awk 'NR==1; END{print}'))
@@ -249,3 +250,6 @@ npm_run_build: ## Runs the build command in package.json
 	@echo "START npm run build ..."
 	cd src/ && npm run build && cd ..
 	@echo "DONE npm run build."
+
+restore_ci_test_setup: ## Re-add CI test scripts + devDeps (from .ci-package.json) stripped by the proto-compiler regen
+	@node restore-ci-package.js
