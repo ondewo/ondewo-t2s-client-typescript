@@ -1,0 +1,41 @@
+# Auto-fix the mechanical rules (blank-line spacing, list indentation, emphasis
+# style, ...) the same way ruff-format does for Python.
+fix: true
+config:
+  # MD013 line-length: docs contain long lines / tables.
+  MD013: false
+  # MD033 no-inline-html: docs embed <p>/<code> HTML tags.
+  MD033: false
+  # MD024 duplicate-heading: RELEASE.md changelogs repeat "Improvements" /
+  # "Breaking Changes" across release sections (mixed heading levels) — allow.
+  MD024: false
+  # MD025 single-h1: RELEASE.md is a changelog with one top-level heading per
+  # release entry — multiple H1s are the intended structure.
+  MD025: false
+  # MD035 hr-style: the `*****************` lines in RELEASE.md are structural
+  # note delimiters the release tooling parses, not stylistic horizontal rules —
+  # never normalize their width.
+  MD035: false
+  # MD040 fenced-code-language: README embeds plain directory-tree / output blocks.
+  MD040: false
+  # MD041 first-line-heading: README opens with the HTML branding/logo header.
+  MD041: false
+  # MD045 image-alt-text: the branding header uses <img> logos / social icons.
+  MD045: false
+  # MD053 link-reference-definitions: the docs use `[comment]: <> (START OF GITHUB
+  # README)` / `(END OF GITHUB README)` markers that the release Makefile parses to
+  # cut the published README. They look "unused" to markdownlint — never strip them.
+  MD053: false
+ignores:
+  - "node_modules/**"
+  - "api/**"
+  - "src/ondewo-t2s-api/**"
+  - "ondewo-proto-compiler/**"
+  - ".venv/**"
+  # RELEASE.md / src/RELEASE.md are structured changelogs whose exact heading text
+  # ("Release ONDEWO T2S Typescript Client X.Y.Z") and `*****************` note
+  # delimiters are parsed verbatim by the release Makefile (CURRENT_RELEASE_NOTES,
+  # `cp src/RELEASE.md .`). markdownlint's auto-fixer rewrites heading levels and
+  # (on this dense format) corrupts content — never let it touch these.
+  - "RELEASE.md"
+  - "src/RELEASE.md"
