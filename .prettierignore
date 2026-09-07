@@ -11,23 +11,15 @@ esm2022/
 fesm2022/
 node_modules
 npm
-src/
-
-# Tooling config prettier and the tools themselves disagree about: `make prettier
-# PRETTIER_WRITE=-w` runs from .husky/pre-commit BEFORE `pre-commit run`, so a rewrite of
-# .pre-commit-config.yaml leaves it unstaged and `pre-commit run` aborts with
-# "Your pre-commit configuration is unstaged" -- a deadlock on every dev commit.
-.pre-commit-config.yaml
-.markdownlint-cli2.yaml
-.ci-package.json
-
-# Release-critical markdown: prettier rewrites `[comment]: <> (START OF GITHUB README)` into
-# `[comment]: <> 'START OF GITHUB README'`. The Makefile slices the published README between those
-# markers, so they are left exactly as-is (same reason RELEASE.md is ignored).
-README.md
 RELEASE.md
-CLAUDE.md
+src/
 
 ondewo-proto-compiler
 
 ondewo-t2s-api
+# README.md is prettier-ignored: .prettierrc sets useTabs, so prettier re-tabs the fenced
+# code blocks that markdownlint's MD010 then de-tabs, and the husky hook runs prettier -w
+# before pre-commit -- the two fight on every commit that touches the file. Prettier also
+# rewrites the `[comment]: <> (START/END OF GITHUB README)` slice markers the release cuts
+# the published README with.
+README.md

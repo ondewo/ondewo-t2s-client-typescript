@@ -27,15 +27,15 @@ config:
   # cut the published README. They look "unused" to markdownlint — never strip them.
   MD053: false
 ignores:
-  - "node_modules/**"
-  - "api/**"
-  - "src/ondewo-t2s-api/**"
-  - "ondewo-proto-compiler/**"
-  - ".venv/**"
+  - 'node_modules/**'
+  - 'api/**'
+  - 'src/ondewo-t2s-api/**'
+  - 'ondewo-proto-compiler/**'
+  - '.venv/**'
   # RELEASE.md / src/RELEASE.md are structured changelogs whose exact heading text
   # ("Release ONDEWO T2S Typescript Client X.Y.Z") and `*****************` note
   # delimiters are parsed verbatim by the release Makefile (CURRENT_RELEASE_NOTES,
   # `cp src/RELEASE.md .`). markdownlint's auto-fixer rewrites heading levels and
   # (on this dense format) corrupts content — never let it touch these.
-  - "RELEASE.md"
-  - "src/RELEASE.md"
+  - 'RELEASE.md'
+  - 'src/RELEASE.md'
