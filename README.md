@@ -52,13 +52,18 @@ npm
 │   ├── google
 │   │   └── protobuf
 │   │       ├── empty_pb.d.ts
-│   │       └── empty_pb.js
+│   │       ├── empty_pb.js
+│   │       ├── struct_pb.d.ts
+│   │       └── struct_pb.js
 │   └── ondewo
 │       └── t2s
 │           ├── text-to-speech_grpc_web_pb.d.ts
 │           ├── text-to-speech_grpc_web_pb.js
 │           ├── text-to-speech_pb.d.ts
 │           └── text-to-speech_pb.js
+├── auth
+│   ├── offlineTokenProvider.d.ts
+│   └── offlineTokenProvider.js
 ├── LICENSE
 ├── package.json
 ├── public-api.d.ts
@@ -66,7 +71,62 @@ npm
 └── README.md
 ```
 
+`public-api` re-exports `api/` only, so the auth helper is imported from its own subpath.
+
+## Authentication
+
+`auth/offlineTokenProvider` performs a headless Keycloak login (ROPC + `offline_access`) against the **public** SDK
+client — no client secret — and keeps the short-lived access token fresh in the background until `tokenExpirationInS`
+elapses. Pass its `Bearer <token>` header as gRPC metadata on every call and `stop()` the provider when you are done.
+
+```typescript
+import { login, OfflineTokenProvider } from '@ondewo/t2s-client-typescript/auth/offlineTokenProvider';
+import { Text2SpeechPromiseClient } from '@ondewo/t2s-client-typescript/api/ondewo/t2s/text-to-speech_grpc_web_pb';
+import { RequestConfig, SynthesizeRequest } from '@ondewo/t2s-client-typescript/api/ondewo/t2s/text-to-speech_pb';
+
+const tokenProvider: OfflineTokenProvider = await login({
+  keycloakUrl: 'https://auth.example.com/auth',
+  realm: 'ondewo-ccai-platform',
+  clientId: 'ondewo-t2s-cai-sdk-public',
+  username: 'tech-user@example.com',
+  password: '…',
+  // Only for a self-signed local Envoy; Node-only, ignored in a browser bundle.
+  keycloakVerifySsl: true
+});
+
+const config = new RequestConfig();
+config.setT2sPipelineId('my-pipeline');
+const request = new SynthesizeRequest();
+request.setText('Hello from the ONDEWO T2S TypeScript client.');
+request.setConfig(config);
+
+const client = new Text2SpeechPromiseClient('https://t2s.example.com:9443', null, null);
+const response = await client.synthesize(request, { Authorization: tokenProvider.getAuthorizationHeader() });
+
+tokenProvider.stop();
+```
+
+A runnable version of the same flow, configured from `examples/environment.env`, lives in `examples/ts-client.ts`.
+
 [comment]: <> (START OF GITHUB README)
+
+## Development
+
+```shell
+npm install --no-audit --no-fund
+npm test            ## unit tests + the 100% line/branch/function coverage gate on auth/ and examples/
+npm run test:drift  ## package.json still agrees with .ci-package.json
+make eslint         ## type-aware lint
+make prettier       ## format check; add PRETTIER_WRITE=-w to apply
+```
+
+`npm test` compiles every hand-written `.ts` under `auth/` and `examples/` through `tsconfig.test.json` into
+`.test-build/` and runs node's built-in test runner under `c8 --all`. Because the compile list is a glob and `c8` runs
+with `--all`, a new hand-written source that no test exercises shows up at 0% and fails the gate — it is not silently
+skipped. Generated code under `api/` is never linted, tested or measured.
+
+`make setup_developer_environment_locally` additionally installs the git hooks (`npx husky install` plus `pre-commit`);
+without it the hooks are inert in a fresh clone.
 
 ## Build
 
