@@ -110,11 +110,14 @@ export async function synthesizeText(
 /**
  * Read a value from the environment, falling back to `fallback` when unset or empty.
  *
+ * Exported (like {@link synthesizeText}) so the configuration parsing is unit-tested directly
+ * rather than only through {@link main}.
+ *
  * @param name - Environment variable name.
  * @param fallback - Value to use when the variable is unset or empty.
  * @returns The environment value, or `fallback`.
  */
-function envOr(name: string, fallback: string): string {
+export function envOr(name: string, fallback: string): string {
 	const value: string | undefined = process.env[name];
 	return value !== undefined && value.length > 0 ? value : fallback;
 }
@@ -123,11 +126,13 @@ function envOr(name: string, fallback: string): string {
  * Read a boolean value from the environment. `"true"` (case-insensitive) is `true`; anything else
  * (including unset) falls back to `fallback`.
  *
+ * Exported so the flag parsing is unit-tested directly (see {@link envOr}).
+ *
  * @param name - Environment variable name.
  * @param fallback - Value to use when the variable is unset or empty.
  * @returns The parsed boolean value, or `fallback`.
  */
-function envBool(name: string, fallback: boolean): boolean {
+export function envBool(name: string, fallback: boolean): boolean {
 	const value: string | undefined = process.env[name];
 	if (value === undefined || value.length === 0) {
 		return fallback;
@@ -140,9 +145,11 @@ function envBool(name: string, fallback: boolean): boolean {
  * `<scheme>://ONDEWO_HOST:ONDEWO_PORT`, where `<scheme>` is `https` when `ONDEWO_USE_SECURE_CHANNEL`
  * is `true`, otherwise `http`.
  *
+ * Exported so the URL assembly is unit-tested directly (see {@link envOr}).
+ *
  * @returns The fully-qualified grpc-web host URL.
  */
-function buildGrpcWebHost(): string {
+export function buildGrpcWebHost(): string {
 	const host: string = envOr('ONDEWO_HOST', 'localhost');
 	const port: string = envOr('ONDEWO_PORT', '8080');
 	const scheme: string = envBool('ONDEWO_USE_SECURE_CHANNEL', false) ? 'https' : 'http';
@@ -193,6 +200,7 @@ export async function main(): Promise<void> {
 	}
 }
 
+/* c8 ignore next 6 -- CLI entry point: runs only when executed directly, never under the test runner. */
 if (require.main === module) {
 	main().catch((error: unknown): void => {
 		console.error('ERROR: T2S synthesis example failed.', error);

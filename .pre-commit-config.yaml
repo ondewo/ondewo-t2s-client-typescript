@@ -24,6 +24,9 @@ repos:
       - id: check-added-large-files
         args: [ maxkb=1024 ]
       - id: check-json          # validate (does NOT reformat) json/package.json
+        # tsconfig*.json is JSONC by TypeScript's own spec -- tsconfig.test.json uses comments to
+        # document why its `include` must stay a glob. Python's json.load rejects them.
+        exclude: '^tsconfig(\..*)?\.json$'
       - id: check-yaml
       - id: check-xml
       - id: check-merge-conflict

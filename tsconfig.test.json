@@ -1,0 +1,26 @@
+{
+	// Compile-configuration for the coverage-gated test build (`npm run pretest`).
+	//
+	// It exists so the gate is driven by a GLOB, not by a hand-maintained file list: every
+	// hand-written .ts under auth/ and examples/ is compiled into .test-build/ and therefore
+	// picked up by c8's `--all`, so a NEW untested source fails the 100% gate instead of being
+	// silently skipped. Never replace `include` with explicit `files` entries.
+	//
+	// tsconfig.json (the editor/eslint config) is intentionally separate: it emits to ./dist,
+	// targets es6 and has `allowJs`, none of which the test build wants.
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2020",
+		"lib": ["es2020", "dom"],
+		"strict": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"types": ["node"],
+		"typeRoots": ["./node_modules/@types"],
+		// rootDir "." keeps the auth/ and examples/ directory structure inside .test-build, so the
+		// example's `require('../api/...')` resolves against the api/ copy made by `pretest`.
+		"rootDir": ".",
+		"outDir": ".test-build"
+	},
+	"include": ["auth/**/*.ts", "examples/**/*.ts"]
+}
