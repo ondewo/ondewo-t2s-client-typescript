@@ -71,7 +71,9 @@ npm
 └── README.md
 ```
 
-`public-api` re-exports `api/` only, so the auth helper is imported from its own subpath.
+The `public-api` barrel currently re-exports `api/` only, so the auth helper is imported from its own subpath. That
+subpath import is stable; from the first regeneration with ondewo-proto-compiler 5.13.0 or newer the barrel also
+re-exports `auth/`, which makes the package-root import resolve as well.
 
 ## Authentication
 

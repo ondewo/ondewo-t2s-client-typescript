@@ -65,9 +65,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   `Co-Authored-By: Claude…` trailers, "Generated with Claude Code" footers, or any similar attribution.
 - The user's own git author identity (already configured in git) is the only identity that should appear on commits.
 - This rule overrides the default Claude Code commit-template guidance.
-- **Never prepend the JIRA ticket ID** (e.g. `[OND231-624]`) to the commit subject yourself. The `giticket` commit-msg
+- **Never prepend the JIRA ticket ID** (e.g. `[OND221-2830]`) to the commit subject yourself. The `giticket` commit-msg
   hook reads the ticket from the branch name (`(feature|bugfix|support|hotfix)/<TICKET>-…`) and prepends `[<ticket>]`
-  automatically. Writing the prefix manually produces `[OND231-624] [OND231-624] feat: …`. Write a plain Conventional
+  automatically. Writing the prefix manually produces `[OND221-2830] [OND221-2830] feat: …`. Write a plain Conventional
   Commits subject (`feat: …`, `fix(scope): …`, `docs: …`) and let the hook decorate it.
 
 ## What this repo is
@@ -75,15 +75,15 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 `@ondewo/t2s-client-typescript` — a TypeScript gRPC-web SDK for the ONDEWO T2S API. About 95% of the tree is generated
 protobuf/gRPC-web stubs; the hand-written surface is small and is the only thing that is linted, tested and gated.
 
-| Path | Status |
-| --- | --- |
-| `auth/offlineTokenProvider.ts` + `.spec.ts` | hand-written — the D18 Keycloak ROPC + `offline_access` token provider |
-| `examples/ts-client.ts` + `.spec.ts`, `examples/environment.env` | hand-written — runnable example + its unit tests |
-| `Makefile`, `tsconfig*.json`, `package.json`, `.ci-package.json`, `.husky/*`, `.github/workflows/tests.yml` | hand-written |
-| `api/**` | **generated** by the proto-compiler docker image — never edit, never test, excluded from every hook |
-| `public-api.js`, `public-api.d.ts` | **generated** — they re-export `api/` only; there is no auth export in them (that is a proto-compiler 5.13.0 codegen feature this client has not been regenerated with) |
-| `src/ondewo-t2s-api` (submodule, `tags/6.6.0`) | the `.proto` source the stubs are built from |
-| `ondewo-proto-compiler` (submodule, `tags/5.14.0`) | the codegen toolchain |
+| Path                                                                                                        | Status                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth/offlineTokenProvider.ts` + `.spec.ts`                                                                 | hand-written — the D18 Keycloak ROPC + `offline_access` token provider                                                                                                                                                                                                                                                                                      |
+| `examples/ts-client.ts` + `.spec.ts`, `examples/environment.env`                                            | hand-written — runnable example + its unit tests                                                                                                                                                                                                                                                                                                            |
+| `Makefile`, `tsconfig*.json`, `package.json`, `.ci-package.json`, `.husky/*`, `.github/workflows/tests.yml` | hand-written                                                                                                                                                                                                                                                                                                                                                |
+| `api/**`                                                                                                    | **generated** by the proto-compiler docker image — never edit, never test, excluded from every hook                                                                                                                                                                                                                                                         |
+| `public-api.js`, `public-api.d.ts`                                                                          | **generated** — the committed barrels re-export `api/` only. Appending `export * from './auth/…'` is a proto-compiler ≥5.13.0 codegen step (`typescript/image-data/append-auth-exports.sh`), and this client has not been regenerated with it — despite what the 6.6.1 RELEASE.md entry says. Import the auth module by subpath until a `make build` lands. |
+| `src/ondewo-t2s-api` (submodule, `tags/6.6.0`)                                                              | the `.proto` source the stubs are built from                                                                                                                                                                                                                                                                                                                |
+| `ondewo-proto-compiler` (submodule, `tags/5.14.0`)                                                          | the codegen toolchain                                                                                                                                                                                                                                                                                                                                       |
 
 Node on this machine is v24 (nvm); CI uses Node 20. There is no Python in this repo — `uvx pre-commit …` works directly,
 no `uv run --frozen` wrapper is needed (unlike the two `*-client-python` repos).
@@ -105,10 +105,13 @@ make prettier     # --check only; PRETTIER_WRITE=-w to fix
   is the mechanism by which the gate notices a new source file. Do not convert it to explicit entries.
 - **The gate is `c8 --check-coverage --lines 100 --branches 100 --functions 100 --all --src .test-build` over
   `.test-build/{auth,examples}/**/*.js`, minus `*.spec.js`.** `--all` is what makes a source that no test ever loads show
-  up at 0% instead of being invisible. Verified: dropping an untested `auth/probeUntested.ts` in takes the run to 99.56%
-  lines / 95% functions and exit 1.
+  up at 0% instead of being invisible. Verified on this tree: dropping a 6-line untested `auth/probeUntested.ts` in
+  takes the run to 99.12% lines / 98.83% branches / 95% functions and **exit 1**; removing it returns 100% and exit 0.
 - c8 maps coverage back through the source maps, so the report names `offlineTokenProvider.ts` / `ts-client.ts`, not the
   compiled `.js`.
+- `.husky/pre-push` runs `npm test` — the local equivalent of the CI gate. It is deliberately NOT on `pre-commit`:
+  `make run_precommit_hooks` executes `.husky/pre-commit` directly and `make release` calls it, so the full tsc + c8 pass
+  would run inside the automated release right after the codegen rewrote `api/` and `package.json`.
 - **There is exactly one coverage exclusion**, and it is a line-scoped `/* c8 ignore next 6 */` on
   `examples/ts-client.ts`'s `if (require.main === module)` CLI block, which by construction cannot run under the test
   runner. Three older `/* c8 ignore next 3 */` pragmas in `auth/offlineTokenProvider.ts` mark the browser guard and two
@@ -141,14 +144,17 @@ git submodule update --init --recursive
 git -C ondewo-proto-compiler fetch --tags origin
 git -C ondewo-proto-compiler checkout <VERSION>
 git add ondewo-proto-compiler
-# then set ONDEWO_PROTO_COMPILER_GIT_BRANCH=tags/<VERSION> in the Makefile (line 20)
+# then set ONDEWO_PROTO_COMPILER_GIT_BRANCH=tags/<VERSION> in the Makefile's variables block
 git submodule status | grep proto-compiler   # must show the tag's peeled commit
 ```
 
 - `.gitmodules` gives `ondewo-proto-compiler` an **ssh** URL (`git@github.com:…`), so the fetch needs a working ssh key;
   `src/ondewo-t2s-api` is https.
 - Keep the Makefile variable and the gitlink in step. `make check_out_correct_submodule_versions` checks out whatever the
-  Makefile says, so a Makefile that lags the gitlink actively **downgrades** the submodule during `make build`.
+  Makefile says, so a Makefile that lags the gitlink actively **downgrades** the submodule during `make build`. This is
+  not hypothetical: `2b9be11` / `214d47f` ("Update proto compiler dependency to version 5.12.0 / 5.13.0") moved only the
+  gitlink and left `ONDEWO_PROTO_COMPILER_GIT_BRANCH=tags/5.11.0`, and the next release commit (`4b919d8`) duly reset the
+  gitlink back to 5.11.0's `2cc55c0`. Two edits, always.
 - **A pin bump ships nothing on its own.** The 5.11.0 → 5.14.0 payload (Angular TS2308 duplicate-symbol re-exports, auth
   barrel exports in the generated `public-api`, proto3 explicit-presence for `optional` scalars) is emitted at codegen
   time. Committed stubs are untouched until someone runs `make build`. Never write "Regenerated with proto-compiler
@@ -163,15 +169,16 @@ git submodule status | grep proto-compiler   # must show the tag's peeled commit
 `uvx pre-commit run --all-files` must pass. It currently does.
 
 - **ORDER: `conventional-pre-commit` BEFORE `giticket`.** Both run at the `commit-msg` stage and pre-commit executes
-  repos in declaration order. giticket rewrites the subject to `[OND231-624] feat: …`, which is no longer valid
+  repos in declaration order. giticket rewrites the subject to `[OND221-2830] feat: …`, which is no longer valid
   Conventional Commits — with giticket first, every commit on a ticket branch failed and could only land with
-  `--no-verify`. Verify after any change to the file:
+  `--no-verify`. Fixed on master in `ae80365`; the comment block above the two repos in the config records the rule.
+  Verify after any change to the file:
 
   ```shell
-  git switch -c feature/OND231-624-probe
+  git switch -c feature/OND221-2830-probe
   printf 'chore: probe\n' > /tmp/msg
   uvx pre-commit run --hook-stage commit-msg --commit-msg-filename /tmp/msg   # exit 0
-  cat /tmp/msg                                                                # [OND231-624] chore: probe
+  cat /tmp/msg                                                                # [OND221-2830] chore: probe
   ```
 
   The config must be **staged** first — pre-commit refuses to run against an unstaged `.pre-commit-config.yaml`.
@@ -184,14 +191,18 @@ git submodule status | grep proto-compiler   # must show the tag's peeled commit
   every README edit.
 - **`RELEASE.md` and `src/RELEASE.md` are in markdownlint's `ignores`** (its fixer corrupts that dense format), but the
   `trailing-whitespace` and `end-of-file-fixer` hooks still touch them — that is safe and is what stripped the blanks
-  from the 6.5.0/6.6.0 entries. After any such pass, check the counts still match: 13 `## Release ONDEWO T2S Typescript
-  Client …` headings and 13 `*****` separators, and `make TEST` still prints the current version's notes.
+  from the older entries. After any such pass, check the counts still match: 14 `## Release ONDEWO T2S Typescript
+Client …` headings and 14 `*****` separators, and `make TEST` still prints the current version's notes.
 - **`check-json` skips `tsconfig*.json`.** TypeScript's config format is JSONC and `tsconfig.test.json` uses comments to
   document its glob rule; Python's `json.load` rejects them.
-- **`.prettierignore` covers `.pre-commit-config.yaml`, `.markdownlint-cli2.yaml`, `.ci-package.json`, `CLAUDE.md`,
-  `README.md`, `RELEASE.md`, `coverage/` and `.nyc_output/`.** `.husky/pre-commit` runs `make prettier PRETTIER_WRITE=-w`
-  **before** `pre-commit run`, so a prettier rewrite of the pre-commit config left it unstaged and aborted the run with
-  _"Your pre-commit configuration is unstaged"_ — a deadlock on every dev commit.
+- **The tooling configs are kept prettier-CLEAN, not prettier-ignored.** `.husky/pre-commit` runs
+  `make prettier PRETTIER_WRITE=-w` **before** `pre-commit run`, so any file prettier still wants to rewrite is left
+  unstaged and aborts the run with _"Your pre-commit configuration is unstaged"_. The fix is to keep
+  `.pre-commit-config.yaml`, `.markdownlint-cli2.yaml`, `.ci-package.json` and `CLAUDE.md` already in `.prettierrc`
+  style (tabs in JSON, single-quoted YAML scalars) so the write pass is a no-op — adding them to `.prettierignore`
+  instead only hides the drift. `.prettierignore` itself covers `README.md` and `RELEASE.md` (whose
+  `[comment]: <>` / `*****` markers prettier mangles), the generated trees, and `.test-build/`, `coverage/`,
+  `.nyc_output/`.
 - `.husky/pre-commit` additionally guards `pre-commit run` behind `git diff --quiet -- .pre-commit-config.yaml`: the
   release calls that hook **directly** via `make run_precommit_hooks`, and the codegen leaves the config unstaged.
 - Hook revs, all confirmed newest stable: markdownlint-cli2 `v0.23.2`, pre-commit-hooks `v6.0.0`, conventional-pre-commit
@@ -212,7 +223,7 @@ git submodule status | grep proto-compiler   # must show the tag's peeled commit
 - **Runtime deps the shipped auth helper needs (`undici`) must be declared in `src/package.json`**, the codegen source of
   truth; otherwise the regen strips them from root and the published package is missing them.
 - **`create_npm_package` compiles `auth/offlineTokenProvider.ts` into `npm/auth/`** (`npx tsc … --declaration --rootDir
-  auth --outDir npm/auth`). Without it the published package contains no auth module at all and consumers cannot
+auth --outDir npm/auth`). Without it the published package contains no auth module at all and consumers cannot
   `import { login } from '@ondewo/t2s-client-typescript/auth/offlineTokenProvider'`, even though the example does.
 - **`npm_release` depends on `verify_npm_package_contents`**, which runs `npm pack --dry-run --json ./npm` and fails on
   any packed `*.spec.*` / `*.test.*` / `__tests__` / `__mocks__` / non-`.d.ts` `.ts` / `.map` / `examples/` /
@@ -226,7 +237,9 @@ git submodule status | grep proto-compiler   # must show the tag's peeled commit
   `npm config set …_authToken`, and the credential sub-make `@make release $(info)`), and `make TEST` prints
   `<set>`/`<unset>` rather than values. Keep it that way — an un-`@`-prefixed line makes `make` echo the expanded token.
 - **`CURRENT_RELEASE_NOTES`** slices `RELEASE.md` with `perl -ne 'print if /Release ONDEWO T2S Typescript Client
-  ${VERSION}/../\*\*/'`. The terminator is any `**`, which in this file is the next `*****` separator.
+${VERSION}/../^\*{5}/'`. The terminator is anchored on the `*****` entry separator on purpose: the earlier `/\*\*/`
+  form matched the first inline `**bold**` span in an entry just as readily and silently truncated the GitHub release
+  notes there. Leave it anchored.
 - The published README is cut between the `[comment]: <>` markers by a `perl` line-range delete on `npm/README.md`.
 - **Codegen must run TTY-free**: the `build` / `debug` scripts use plain `docker run` (no `-it`) — with a TTY the
   non-interactive release fails with `cannot attach stdin to a TTY-enabled container because stdin is not a terminal`.
@@ -236,7 +249,9 @@ git submodule status | grep proto-compiler   # must show the tag's peeled commit
 ## Sharp edges
 
 - `make prettier` is `--check` and fails on any style drift; `.prettierrc` is authoritative (**tabs**, single quotes,
-  `printWidth: 120`). `auth/offlineTokenProvider*.ts` used to be 2-space/double-quoted and was reformatted to match.
+  `printWidth: 120`). Everything prettier can see is already in that style — `auth/offlineTokenProvider*.ts` (once
+  2-space/double-quoted), the workflow, and the JSON/YAML tooling configs — so a `--check` run on a clean checkout must
+  exit 0. If it does not, fix the file rather than adding it to `.prettierignore`.
 - `make eslint` exits 0 with 10 `no-ternary` warnings, but `@typescript-eslint/no-unnecessary-type-assertion` is an
   **error**: an `x as unknown as T` double assertion that TypeScript considers redundant fails `.husky/pre-commit`
   (`set -e`) and therefore the release. Prefer the narrowest cast that type-checks.
