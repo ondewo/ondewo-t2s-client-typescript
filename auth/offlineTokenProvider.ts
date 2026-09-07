@@ -180,6 +180,15 @@ async function postTokenRequest(
 	return parsed;
 }
 
+/**
+ * The undici `Agent` options that switch TLS certificate verification OFF for the token request.
+ * Exported so the security-relevant `rejectUnauthorized: false` literal is pinned by a test rather
+ * than living as a bare literal that could be flipped without any test noticing.
+ */
+export const INSECURE_AGENT_OPTIONS: { connect: { rejectUnauthorized: boolean } } = {
+	connect: { rejectUnauthorized: false }
+};
+
 /** Cached insecure undici dispatcher (built once, reused) so `verifySsl:false` costs one Agent. */
 let insecureNodeDispatcher: unknown;
 
@@ -203,7 +212,7 @@ async function getInsecureNodeDispatcher(): Promise<unknown> {
 		const undici: { Agent: new (options: unknown) => unknown } = (await import(undiciModuleName)) as {
 			Agent: new (options: unknown) => unknown;
 		};
-		insecureNodeDispatcher = new undici.Agent({ connect: { rejectUnauthorized: false } });
+		insecureNodeDispatcher = new undici.Agent(INSECURE_AGENT_OPTIONS);
 	}
 	return insecureNodeDispatcher;
 }
@@ -283,7 +292,8 @@ export class OfflineTokenProvider {
 	 * @param username - 2FA-exempt technical-user email.
 	 * @param password - Technical-user password.
 	 * @returns A promise that resolves once the access token is stored and the first refresh is armed.
-	 * @throws {@link TokenError} On a token-endpoint failure or a response lacking a `refresh_token`.
+	 * @throws {@link TokenError} On a token-endpoint failure, or when the response carries no usable
+	 *   `refresh_token` -- absent, not a string, or empty.
 	 */
 	public async bootstrap(username: string, password: string): Promise<void> {
 		const tokenResponse: KeycloakTokenResponse = await postTokenRequest(
@@ -299,7 +309,13 @@ export class OfflineTokenProvider {
 		);
 
 		this.accessToken = tokenResponse.access_token;
-		this.refreshToken = typeof tokenResponse.refresh_token === 'string' ? tokenResponse.refresh_token : null;
+		// An empty string is rejected exactly like a missing token, mirroring the rotation guard in
+		// refresh(): a blank offline token would otherwise bootstrap a provider whose every renewal POSTs
+		// `refresh_token=` and fails, turning a clear login error into a silent expiry ~5 minutes later.
+		this.refreshToken =
+			typeof tokenResponse.refresh_token === 'string' && tokenResponse.refresh_token.length > 0
+				? tokenResponse.refresh_token
+				: null;
 		if (this.refreshToken === null) {
 			throw new TokenError(
 				'Keycloak token response did not contain a refresh_token; the SDK client must have ' +

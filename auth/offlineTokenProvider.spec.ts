@@ -24,6 +24,7 @@ import { test as runTestCase, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+	INSECURE_AGENT_OPTIONS,
 	login,
 	OfflineTokenProvider,
 	TokenError,
@@ -206,6 +207,23 @@ runTestCase('login rejects a non-2xx token response with TokenError', async () =
 
 runTestCase('login rejects when the token response carries no refresh_token (missing offline_access)', async () => {
 	const stub: FetchStub = makeFetchStub([{ body: { access_token: 'access-1', expires_in: 300 } }]);
+	await assert.rejects(() => login({ ...BASE_OPTIONS, fetchImpl: stub.fetchImpl }), TokenError);
+});
+
+runTestCase('login rejects a token response whose refresh_token is an empty string', async () => {
+	// Present but blank is as unusable as absent: it must fail loudly at login rather than bootstrap a
+	// provider whose first background refresh POSTs an empty refresh_token and silently lapses.
+	const stub: FetchStub = makeFetchStub([{ body: { access_token: 'access-1', refresh_token: '', expires_in: 300 } }]);
+	await assert.rejects(
+		() => login({ ...BASE_OPTIONS, fetchImpl: stub.fetchImpl }),
+		(error: unknown): boolean => error instanceof TokenError && /did not contain a refresh_token/.test(error.message)
+	);
+});
+
+runTestCase('login rejects a token response whose refresh_token is not a string', async () => {
+	const stub: FetchStub = makeFetchStub([
+		{ body: { access_token: 'access-1', refresh_token: 12345, expires_in: 300 } }
+	]);
 	await assert.rejects(() => login({ ...BASE_OPTIONS, fetchImpl: stub.fetchImpl }), TokenError);
 });
 
@@ -461,6 +479,10 @@ runTestCase(
 			assert.equal(dispatcher, stub.calls[0].init.dispatcher);
 			// It is an undici Agent instance (constructor name), proving the insecure default path was taken.
 			assert.equal((dispatcher as { constructor: { name: string } }).constructor.name, 'Agent');
+			// Pin the security-relevant literal itself: an Agent built with `rejectUnauthorized: true` would
+			// silently disable the whole opt-out (self-signed Envoy logins would start failing the handshake)
+			// while still satisfying the constructor-name assertion above.
+			assert.deepEqual(INSECURE_AGENT_OPTIONS, { connect: { rejectUnauthorized: false } });
 			assert.equal(provider.getAccessToken(), 'access-1');
 			provider.stop();
 		} finally {
