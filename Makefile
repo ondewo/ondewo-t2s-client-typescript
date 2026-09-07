@@ -110,7 +110,7 @@ release: ## Create Github and NPM Release
 	git add ${ONDEWO_PROTO_COMPILER_DIR}
 	git add ${T2S_APIS_DIR}
 	git status
-	git commit --no-verify -m "Preparing for Release ${ONDEWO_T2S_VERSION}"
+	-git commit --no-verify -m "Preparing for Release ${ONDEWO_T2S_VERSION}"
 	git push
 	make publish_npm_via_docker
 	make create_release_branch
@@ -120,7 +120,7 @@ release: ## Create Github and NPM Release
 
 gh_release: build_utils_docker_image release_to_github_via_docker_image ## Builds Utils Image and Releases to Github
 
-npm_release: ## Releases to NPM
+npm_release: verify_npm_package_contents ## Releases to NPM
 	@echo "Start NPM Release"
 	npm publish ./npm --access public
 	@echo "Finished NPM Release"
@@ -227,6 +227,13 @@ create_npm_package: ## Create NPM Package for Release
 	cp package.json npm
 	cp LICENSE npm
 	cp README.md npm
+	mkdir -p npm/auth
+	npx tsc auth/offlineTokenProvider.ts --ignoreConfig --declaration --module commonjs --target es2020 --strict --lib es2020,dom --skipLibCheck --types node --typeRoots ./node_modules/@types --rootDir auth --outDir npm/auth
+
+verify_npm_package_contents: ## Fails if the npm/ package would ship test artifacts or is missing required files
+	@test -d npm || { echo "verify_npm_package_contents: npm/ is missing - run 'make create_npm_package' first"; exit 1; }
+	@test -f npm/package.json || { echo "verify_npm_package_contents: npm/package.json is missing - run 'make create_npm_package' first"; exit 1; }
+	@npm pack --dry-run --json ./npm | node -e 'let s="";process.stdin.on("data",d=>{s+=d}).on("end",()=>{let j;try{j=JSON.parse(s)}catch(e){console.error("verify-npm-package: could not parse `npm pack --dry-run --json ./npm` output - is npm/ stale or broken?");process.exit(1)}const files=((j[0]||{}).files||[]).map(f=>f.path);if(files.length===0){console.error("verify-npm-package: npm pack reported no files - run `make create_npm_package` first");process.exit(1)}const forbidden=[[/(^|\/)[^\/]*\.spec\./,"test spec file"],[/(^|\/)[^\/]*\.test\./,"test file"],[/(^|\/)__tests__(\/|$$)/,"__tests__ directory"],[/(^|\/)__mocks__(\/|$$)/,"__mocks__ directory"],[/(?<!\.d)\.ts$$/,"raw TypeScript source (only .d.ts may ship)"],[/\.map$$/,"source map"],[/^examples(\/|$$)/,"examples directory"],[/(^|\/)\.test-build/,"test build output"]];const required=["public-api.js","public-api.d.ts","auth/offlineTokenProvider.js","auth/offlineTokenProvider.d.ts"];console.log("verify-npm-package: checking "+files.length+" packed files for test artifacts ("+forbidden.map(r=>r[1]).join(", ")+") and for required files ("+required.join(", ")+")");const bad=[];for(const f of files){for(const r of forbidden){if(r[0].test(f))bad.push(f+" -> "+r[1])}}const missing=required.filter(r=>!files.includes(r));for(const b of bad)console.error("verify-npm-package: FORBIDDEN "+b);for(const m of missing)console.error("verify-npm-package: MISSING required file "+m);if(bad.length||missing.length){console.error("verify-npm-package: FAILED ("+bad.length+" forbidden, "+missing.length+" missing)");process.exit(1)}console.log("verify-npm-package: OK - no test artifacts, all required files present")})'
 
 install_dependencies: ## Installs Dev-Dependencies
 	npm i --save-dev \

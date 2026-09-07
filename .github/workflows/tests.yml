@@ -25,3 +25,9 @@ jobs:
       # hand-written source that nobody tests drops the gate below 100% instead of being skipped.
       - name: Unit tests + 100% coverage gate on hand-written code
         run: npm test
+
+      # `make build` regenerates package.json from the proto-compiler image and `restore_ci_test_setup`
+      # merges the test scripts + devDeps back from .ci-package.json. If the two drift apart, the
+      # restore silently reinstates a stale gate, so CI asserts they still agree.
+      - name: package.json <-> .ci-package.json mirror
+        run: npm run test:drift
