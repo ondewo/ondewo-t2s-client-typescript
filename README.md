@@ -77,36 +77,49 @@ re-exports `auth/`, which makes the package-root import resolve as well.
 
 ## Authentication
 
-`auth/offlineTokenProvider` performs a headless Keycloak login (ROPC + `offline_access`) against the **public** SDK
-client — no client secret — and keeps the short-lived access token fresh in the background until `tokenExpirationInS`
-elapses. Pass its `Bearer <token>` header as gRPC metadata on every call and `stop()` the provider when you are done.
+All RPCs are authenticated with a Keycloak-issued **bearer token**. `auth/offlineTokenProvider` authenticates against
+the **public** SDK client (no client secret) either with the technical user's password or with a handed-off Keycloak
+**offline refresh token**:
 
-```typescript
-import { login, OfflineTokenProvider } from '@ondewo/t2s-client-typescript/auth/offlineTokenProvider';
+```ts
+import { createKeycloakAuthClientOptions, login } from '@ondewo/t2s-client-typescript/auth/offlineTokenProvider';
 import { Text2SpeechPromiseClient } from '@ondewo/t2s-client-typescript/api/ondewo/t2s/text-to-speech_grpc_web_pb';
-import { RequestConfig, SynthesizeRequest } from '@ondewo/t2s-client-typescript/api/ondewo/t2s/text-to-speech_pb';
 
-const tokenProvider: OfflineTokenProvider = await login({
-  keycloakUrl: 'https://auth.example.com/auth',
-  realm: 'ondewo-ccai-platform',
-  clientId: 'ondewo-t2s-cai-sdk-public',
-  username: 'tech-user@example.com',
-  password: '…',
-  // Only for a self-signed local Envoy; Node-only, ignored in a browser bundle.
-  keycloakVerifySsl: true
+// Password: one ROPC login (grant_type=password, scope=offline_access).
+const provider = await login({
+ keycloakUrl: 'https://auth.example.com/auth',
+ realm: 'ondewo-ccai-platform',
+ clientId: 'ondewo-t2s-cai-sdk-public',
+ username: 'tech-user@example.com',
+ password: '...'
 });
 
-const config = new RequestConfig();
-config.setT2sPipelineId('my-pipeline');
-const request = new SynthesizeRequest();
-request.setText('Hello from the ONDEWO T2S TypeScript client.');
-request.setConfig(config);
+// Offline token: one grant_type=refresh_token request; the password is never sent, not even as a fallback.
+const tokenProvider = await login({
+ keycloakUrl: 'https://auth.example.com/auth',
+ realm: 'ondewo-ccai-platform',
+ clientId: 'ondewo-t2s-cai-sdk-public',
+ username: 'tech-user@example.com',
+ password: '',
+ refreshToken: process.env.ONDEWO_T2S_OFFLINE_TOKEN ?? ''
+});
 
-const client = new Text2SpeechPromiseClient('https://t2s.example.com:9443', null, null);
-const response = await client.synthesize(request, { Authorization: tokenProvider.getAuthorizationHeader() });
-
-tokenProvider.stop();
+// Attach `authorization: Bearer <token>` to every call of a generated client ...
+const client = new Text2SpeechPromiseClient(hostname, null, { ...options, ...createKeycloakAuthClientOptions(provider) });
+// ... or per call: the token is refreshed on read when it is within 30 s of expiry.
+await client.synthesize(request, await provider.getAuthorizationMetadata());
 ```
+
+- `login(...)` always builds a new provider. `getKeycloakTokenProvider(...)` (same options) shares ONE provider (one
+  login) per credential set, and returns `null` when none of `keycloakUrl` / `realm` / `clientId` is set (attach no
+  auth metadata then).
+- The token is refreshed in the background 30 s before it expires. A failed refresh never stops that: it is retried
+  with a jittered backoff (5 s doubling to 300 s) shared with the per-call read, a still-valid token keeps being
+  served meanwhile, and only an expired token that cannot be refreshed raises `KeycloakAuthenticationError` (also
+  exported as `TokenError`, with the underlying error as `cause`).
+- `tokenExpirationInS` bounds how long the refresh runs; `keycloakVerifySsl: false` skips certificate verification
+  of the token request only (Node; a self-signed local Envoy). Call `provider.stop()` (or `await provider.close()`)
+  when you are done. `redactLoginOptions(options)` renders options safe to log.
 
 A runnable version of the same flow, configured from `examples/environment.env`, lives in `examples/ts-client.ts`.
 
